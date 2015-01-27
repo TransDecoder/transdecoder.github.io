@@ -19,7 +19,7 @@ The software is primarily maintained by http://www.broadinstitute.org/~bhaas/[Br
 
 == Obtaining TransDecoder ==
 
-The latest release of TransDecoder can be found http://sourceforge.net/projects/transdecoder/[here].
+The latest release of TransDecoder can be found https://github.com/TransDecoder/TransDecoder/releases[here].
 
 == Running TransDecoder ==
 
@@ -28,11 +28,23 @@ The latest release of TransDecoder can be found http://sourceforge.net/projects/
 The 'TransDecoder' utility is run on a fasta file containing the target transcript sequences.  The simplest usage is as follows:
 
 [source,bash]
-TransDecoder -t target_transcripts.fasta
+
+# Step 1: extract the long open reading frames
+TransDecoder.LongOrfs -t target_transcripts.fasta
+
+[source,bash]
+# Step 2: (optional)
+Optionally, identify ORFs with homology to known proteins via blast or pfam searches.
+
+See <<incl_homology, Including homology searches as ORF retention criteria>> section below.
+
+[source,bash]
+# Step 3: predict the likely coding regions
+TransDecoder.Predict -t target_transcripts.fasta [ homology options ]
 
 If the transcripts are oriented according to the sense strand, then include the -S flag to examine only the top strand.  Full usage info is below.
 
-The script generates several output files, which are described below, but the final set of candidate coding regions can be found as files '*.transdecoder.*' where extensions include .pep, .cds, .gff3, and .bed
+The final set of candidate coding regions can be found as files '*.transdecoder.*' where extensions include .pep, .cds, .gff3, and .bed
 
 
 === Starting from a genome-based transcript structure GTF file (eg. cufflinks) ===
@@ -53,12 +65,15 @@ util/cufflinks_gtf_genome_to_cdna_fasta.pl transcripts.gtf test.genome.fasta > t
 Now, run the process described above to generate your best candidate ORF predictions:
 
 [source,bash]
-TransDecoder -t transcripts.fasta
+TransDecoder.LongOrfs -t transcripts.fasta
+(optionally, identify peptides with homology to known proteins)
+TransDecoder.Predict -t transcripts.fasta [ homology options ]
+
 
 And finally, generate a genome-based coding region annotation file:
 
 [source,bash]
-cdna_alignment_orf_to_genome_orf.pl transcripts.fasta.transdecoder.gff3 transcripts.gff3 transcripts.fasta > transcripts.fasta.transdecoder.genome.gff3
+util/cdna_alignment_orf_to_genome_orf.pl transcripts.fasta.transdecoder.gff3 transcripts.gff3 transcripts.fasta > transcripts.fasta.transdecoder.genome.gff3
 
 
 == Sample data and execution ==
@@ -67,7 +82,7 @@ The sample_data/ directory includes a 'runMe.sh' script that you can execute to 
 
 == Output files explained ==
 
-A temporary directory (ex. transdecoder.tmp.nopfam) is created to run and store intermediate parts of the pipeline, and contains:
+A working directory (ex. transcripts.transdecoder_dir/) is created to run and store intermediate parts of the pipeline, and contains:
 
  longest_orfs.pep   : all ORFs meeting the minimum length criteria, regardless of coding potential.
  longest_orfs.gff3  : positions of all ORFs as found in the target transcripts
@@ -90,95 +105,43 @@ Then, the final outputs are reported in your current working directory:
  transcripts.fasta.transdecoder.bed  : bed-formatted file describing ORF positions, best for viewing using GenomeView or IGV.
 
 
-== Including PFAM domain searches as ORF retention criteria ==
+[[incl_homology]]
+== Including homology searches as ORF retention criteria ==
 
-To further maximize sensitivity for capturing ORFs that may have functional significance, regardless of coding likelihood score as mentioned above, you can scan all ORFs for PFAM domain hits, and retain all such ORFs as part of the final TransDecoder output.  Run TransDecoder like so:
+To further maximize sensitivity for capturing ORFs that may have functional significance, regardless of coding likelihood score as mentioned above, you can scan all ORFs for homology to known proteins and retain all such ORFs.  This can be done in two popular ways: a BLAST search against a database of known proteins, and searching PFAM to identify common protein domains. In the context of TransDecoder, this is done as follows:
 
-[source,bash]
-TransDecoder -t target_transcripts.fasta --search_pfam /path/to/Pfam-A.hmm
+After running TransDecoder.LongOrfs, you'll find a multi-fasta protein file called '${transcripts_file}.transdecoder_dir/longest_orfs.pep'. Search these candidate peptides for homology using approaches below:
 
-This requires that you have http://hmmer.janelia.org/software[HMMER] installed and available in your PATH setting, and ftp://ftp.sanger.ac.uk/pub/databases/Pfam/current_release/Pfam-A.hmm.gz[Pfam] downloaded to be searched locally. If you are ok with not using the latest Pfam-A release from the Sanger institute, simply do:
+=== BlastP Search ===
 
-[source,bash]
-make prep_pfam
+Search a protein database such as http://www.uniprot.org/[Swissprot (fast) or Uniref90 (slow but more comprehensive)] using http://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download[BLAST+].
 
-This will download a 'good-to-go' binary (compressed) version of the combined Pfam-A and -B datasets from the http://sourceforge.net/projects/transdecoder/files/Pfam-AB.hmm.bin/download[TransDecoder] site. Using Pfam-B will increase sensitivity for 'non-model' species at the expense of the searches taking a bit longer. The PFAM file on our website was created using the Pfam version that was current on the Modified Date shown on http://sourceforge.net/projects/transdecoder/files/?source=navbar[Transdecoder file listing].
-
-Alternatively, you can create a new one from scratch:
+An example command would be like so:
 
 [source,bash]
-wget ftp://ftp.sanger.ac.uk/pub/databases/Pfam/current_release/Pfam-A.hmm.gz ftp://ftp.sanger.ac.uk/pub/databases/Pfam/current_release/Pfam-B.hmm.gz
-gunzip -c Pfam-A.hmm.gz Pfam-B.hmm.gz > Pfam-AB.hmm
-hmmconvert -b Pfam-AB.hmm > pfam/Pfam-AB.hmm.bin
-rm Pfam-A.hmm.gz Pfam-B.hmm.gz Pfam-AB.hmm pfam/Pfam-AB.hmm.bin.*
-make prep_pfam
+blastp -query transdecoder_dir/longest_orfs.pep  -db uniprot_sprot.fasta  -max_target_seqs 1 -outfmt 6 -evalue 1e-5 -num_threads 10 > blastp.outfmt6
 
-Once either of this step is complete, you have the option of running on another single server (with ParaFly) or submit to a batch system:
+If you have access to a computing grid, consider using https://github.com/HpcGridRunner/HpcGridRunner.github.io/releases[HPC GridRunner] for more efficient parallel computing.
 
-=== Stand-alone just use this for eg. 5 CPUs ===
 
-[source,bash]
-TransDecoder -t target_transcripts.fasta --reuse --workdir transdecoder --search_pfam /path_to_transdecoder/pfam/Pfam-AB.hmm.bin --CPU 5
+=== Pfam Search ===
 
-=== Using MPI ===
-
-Highly recommended: if you have a computing cluster and MPI installed, you can run TransDecoder using multiple threads with:
+Search the peptides for protein domains using Pfam. This requires http://hmmer.janelia.org/[hmmer3] and ftp://ftp.ebi.ac.uk/pub/databases/Pfam/current_release/Pfam-A.hmm.gz[Pfam] databases to be installed.
 
 [source,bash]
-TransDecoder -t target_transcripts.fasta --search_pfam /path/to/Pfam-A.hmm --MPI --CPU number_of_CPUs
+hmmscan --cpu 8 --domtblout pfam.domtblout /path/to/Pfam-A.hmm transdecoder_dir/longest_orfs.pep
 
-==== How to prepare for MPI ====
+Just as with the blast search, if you have access to a computing grid, consider using https://github.com/HpcGridRunner/HpcGridRunner.github.io/releases[HPC GridRunner].
 
-* MPI is free. First you need the relevant software. We recommend openMPI. You can install it from repositories, e.g. on Debian/Ubuntu: 
- 
-[source,bash]
-apt-get install openmpi-bin
+=== Integrating the Blast and Pfam search results into coding region selection ===
 
-** MPICH2 specific instruction
-+
-TIP: If you don't use OpenMPI but use mpich2 then use mpiexc start the MPI daemon. You only need to do this once (i.e. if you have done it before and the computer was not restarted, it should be there)
-+
-[source,bash]
-ps -Af|grep $USER|grep mpd # if nothing comes back then:
-mpd &
-
-Then you need to re-run make so that FFINDEX is compiled correctly. Finally you need to tell the system where the FFINDEX libraries reside. 
-You do this by setting the environmental variable of LD_LIBRARY_PATH to point to your /full_path_to_transdecoder/util/lib64 (obviously replace the full_path_to_transdecoder):
-[source,bash]
-make
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/full_path_to_transdecoder/util/lib64
-
-You can choose to add this last command to your $HOME/.bashrc file (so it is executed automatically at login), run it manually before using --MPI with Transdecoder or ask your system administrator to do it for you.
-
-==== Batch system on a HPC cluster ====
-
-For high-throughput projects, we recommend the use of a HPC cluster and the use of MPI. We regularly use it with 80-90 nodes on a PBS/Torque batch environment. The example scripts in util/pfam_mpi* are suitable for PBS and with the help of your system administrators, it is straightforward to reconfigure them for other systems (such as the popular LSF/SGI). For this scenario, ask TransDecoder to use a specific working directory, to re-use existing files and stop when the PFAM searches are prepared:
+The outputs generated above can be leveraged by TransDecoder to ensure that those peptides with blast hits or domain hits are retained in the set of reported likely coding regions.  Run TransDecoder.Predict like so:
 
 [source,bash]
-TransDecoder -t target_transcripts.fasta --search_pfam /path/to/Pfam-A.hmm --MPI --workdir mytransdecoder_output --reuse --prepare_pfam
-cd mytransdecoder_output
-cp $TRANSDECODER_DIR/util/pfam_mpi.* .  # assuming you have already made any changes that are system-specific
-./pfam_mpi.sh   # submits the job
+TransDecoder.Predict -t target_transcripts.fasta --retain_pfam_hits pfam.domtblout --retain_blastp_hits --blastp.outfmt6
 
-Wait until the run is complete:
+The final coding region predictions will now include both those regions that have sequence characteristics consistent with coding regions in addition to those that have demonstrated blast homology or pfam domain content.
 
-[source,bash]
-$TRANSDECODER_DIR/util/ffindex_gather.sh longest_orfs.pep_out2    # Tells you if any sequence has not been searched
-
-If something has not been processed (e.g. because walltime expired), resubmit the job; because of ffindex_gather, only sequences not already searched will be run.
-
-[source,bash]
-./pfam_mpi.sh
-$TRANSDECODER_DIR/util/ffindex_gather.sh longest_orfs.pep_out2    # check again. 
-
-If all sequences have been searched, then an output file without the FFINDEX zero bytes will be produced:
-
-[source,bash]
-TransDecoder -t target_transcripts.fasta --search_pfam /path/to/Pfam-A.hmm --MPI --workdir mytransdecoder_output --reuse --pfam_out mytransdecoder_output/longest_orfs.pep_out2.all.db.txt
-
-=== PFAM output ===
-	
-When TransDecoder is finished, you no longer require the mytransdecoder_output and can safely delete it. Before you do that, feel free to use the pfam_out file for http://trinotate.sf.net[Trinotate] to annotate your protein sequences. Also feel free to use these scripts as templates for other work: we (at CSIRO) routinely use this FFINDEX/MPI system to annotate the protein sequences with a variety of databases: a new software called http://jamps.sf.net[Just_Annotate_My_Proteins] (JAMp) is coming this (Southern) summer to a SourceForge site near you.
 
 == Viewing the ORF predictions in a genome browser ==
 
@@ -207,7 +170,6 @@ image:images/genomeview_cufflinks.png["Cufflinks trans in GenomeView with predic
 
 == Technical Support and Project Announcements ==
 
-Subscribe to our mailing list at https://lists.sourceforge.net/lists/listinfo/transdecoder-users[https://lists.sourceforge.net/lists/listinfo/transdecoder-users].
+Join our TransDecoder google group at https://groups.google.com/forum/\#!forum/transdecoder-users[https://groups.google.com/forum/#!forum/transdecoder-users]
 
-Email us at transdecoder-users@lists.sf.net[mailto:transdecoder-users@lists.sf.net]
 
