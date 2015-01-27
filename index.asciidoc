@@ -21,6 +21,8 @@ The software is primarily maintained by http://www.broadinstitute.org/~bhaas/[Br
 
 The latest release of TransDecoder can be found https://github.com/TransDecoder/TransDecoder/releases[here].
 
+Build it by typing 'make' in the base installation directory (note, the only software compiled is http://weizhongli-lab.org/cd-hit/[cd-hit], which comes bundled with and is used by TransDecoder).
+
 == Running TransDecoder ==
 
 === Predicting coding regions from a transcript fasta file ===
