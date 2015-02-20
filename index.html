@@ -790,6 +790,14 @@ http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="font-style: italic"><span style="color: #9A1900"># Step 1: extract the long open reading frames</span></span>
 TransDecoder<span style="color: #990000">.</span>LongOrfs -t target_transcripts<span style="color: #990000">.</span>fasta</tt></pre></div></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">By default, TransDecoder.LongOrfs will identify ORFs that are at least 100 amino acids long. You can lower this via the <em>-m</em> parameter, but know that the rate of false positive ORF predictions increases drastically with shorter minimum length criteria.</td>
+</tr></table>
+</div>
 <div class="listingblock">
 <div class="content"><!-- Generator: GNU source-highlight 3.1.7
 by Lorenzo Bettini
@@ -920,7 +928,7 @@ http://www.gnu.org/software/src-highlite -->
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
-<pre><tt>TransDecoder<span style="color: #990000">.</span>Predict -t target_transcripts<span style="color: #990000">.</span>fasta --retain_pfam_hits pfam<span style="color: #990000">.</span>domtblout --retain_blastp_hits --blastp<span style="color: #990000">.</span>outfmt6</tt></pre></div></div>
+<pre><tt>TransDecoder<span style="color: #990000">.</span>Predict -t target_transcripts<span style="color: #990000">.</span>fasta --retain_pfam_hits pfam<span style="color: #990000">.</span>domtblout --retain_blastp_hits blastp<span style="color: #990000">.</span>outfmt6</tt></pre></div></div>
 <div class="paragraph"><p>The final coding region predictions will now include both those regions that have sequence characteristics consistent with coding regions in addition to those that have demonstrated blast homology or pfam domain content.</p></div>
 </div>
 </div>
@@ -967,7 +975,7 @@ http://www.gnu.org/software/src-highlite -->
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-01-26 19:45:43 EST
+Last updated 2015-02-20 08:11:14 EST
 </div>
 </div>
 </body>

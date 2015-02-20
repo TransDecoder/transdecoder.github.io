@@ -34,6 +34,9 @@ The 'TransDecoder' utility is run on a fasta file containing the target transcri
 # Step 1: extract the long open reading frames
 TransDecoder.LongOrfs -t target_transcripts.fasta
 
+[NOTE]
+By default, TransDecoder.LongOrfs will identify ORFs that are at least 100 amino acids long. You can lower this via the '-m' parameter, but know that the rate of false positive ORF predictions increases drastically with shorter minimum length criteria.
+
 [source,bash]
 # Step 2: (optional)
 Optionally, identify ORFs with homology to known proteins via blast or pfam searches.
@@ -140,7 +143,7 @@ Just as with the blast search, if you have access to a computing grid, consider 
 The outputs generated above can be leveraged by TransDecoder to ensure that those peptides with blast hits or domain hits are retained in the set of reported likely coding regions.  Run TransDecoder.Predict like so:
 
 [source,bash]
-TransDecoder.Predict -t target_transcripts.fasta --retain_pfam_hits pfam.domtblout --retain_blastp_hits --blastp.outfmt6
+TransDecoder.Predict -t target_transcripts.fasta --retain_pfam_hits pfam.domtblout --retain_blastp_hits blastp.outfmt6
 
 The final coding region predictions will now include both those regions that have sequence characteristics consistent with coding regions in addition to those that have demonstrated blast homology or pfam domain content.
 
