@@ -56,16 +56,18 @@ The final set of candidate coding regions can be found as files '*.transdecoder.
 
 The process here is identical to the above with the exception that we must first generate a fasta file corresponding to the transcript sequences, and in the end, we recompute a genome annotation file in GFF3 format that describes the predicted coding regions in the context of the genome.
 
-First, convert the transcript structure GTF file to an alignment-GFF3 formatted file (this is done only because our processes operate on gff3 rather than the starting gtf file - nothing of great consequence).  Convert gtf to alignment-gff3 like so, using cufflinks GTF output as an example:
+
+Construct the transcript fasta file using the genome and the transcripts.gtf file like so:
+
+[source,bash]
+util/cufflinks_gtf_genome_to_cdna_fasta.pl transcripts.gtf test.genome.fasta > transcripts.fasta 
+
+
+Next, convert the transcript structure GTF file to an alignment-GFF3 formatted file (this is done only because our processes operate on gff3 rather than the starting gtf file - nothing of great consequence).  Convert gtf to alignment-gff3 like so, using cufflinks GTF output as an example:
 
 [source,bash]
 util/cufflinks_gtf_to_alignment_gff3.pl transcripts.gtf > transcripts.gff3
 
-
-Next, construct the transcript fasta file using the genome and the transcripts.gff3 file like so:
-
-[source,bash]
-util/cufflinks_gtf_genome_to_cdna_fasta.pl transcripts.gtf test.genome.fasta > transcripts.fasta 
 
 Now, run the process described above to generate your best candidate ORF predictions:
 
