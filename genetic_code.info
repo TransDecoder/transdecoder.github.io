@@ -1,0 +1,81 @@
+
+https://web.archive.org/web/20091014073539/http://golgi.harvard.edu/BioLinks/gencode.html
+
+Biology Links
+Genetic Codes
+
+
+The "Universal" Genetic Code
+
+In form of codon, Left-Top-Right (ATG is Met)
+
+T	C	A	G
+T	Phe	Ser	Tyr	Cys	T
+C
+Leu	Ter	Ter	A
+Trp	G
+C	Leu	Pro	His	Arg	T
+C
+Gln	A
+G
+A	Ile	Thr	Asn	Ser	T
+C
+Lys	Arg	A
+Met	G
+G	Val	Ala	Asp	Gly	T
+C
+Glu	A
+G
+A good reference on deviations from the "Universal" Code can be found in:
+Recent evidence for evolution of the genetic code.
+Osawa S; Jukes; TH; Watnabe K; Muto A
+Microbiol Rev 56: 229-264 (1992)
+An extensive resource on canonical & non-canonical genetic codes and their taxonomic range is maintained by the National Center for Biotechnology Information.
+Unless otherwise cited, information below is from this reference
+
+Non-canonical codes in eubacterial genomes
+
+Micrococcus luteus
+AGA = Not usable
+ATA = Not usable
+Kanoi et al, J Mol Biol 230, 51-6 (1993)
+Mycoplasmas and Spiroplasmas
+TGA = Trp Inamine et al J Bacteriol 172: 504-506 (1990)
+CGG = Not usable Oba et al Proc Natl Acad Sci U S A 88: 921-5 (1991)
+Non-canonical codes in eukaryotic nuclear genomes
+
+Cilliates
+
+Tourancheau et al, EMBO J 14: 3262-3267 (1995)
+
+TAA	TAG	TGA
+Ter	Blepharisma (Canonical)
+Ter	Cys	Euplotes
+Gln	Ter	Paramecium, Tetrahymena, Oxytrichia, Stylonychia, Glaucoma
+Tetrahymena, Paramecium
+TAA = Gln
+TAG = Gln
+Fungi
+
+Candida cylindrica
+CTG = Ser
+Algae
+
+Acetabularia
+TAA = Gln
+TAG = Gln
+Non-canonical codes in mitochondrial genomes
+
+TGA	ATA	AAA	AGA	AGG	CAN	TAA	Citation
+Canonical	Ter	Ile	Lys	Arg	Leu	Ter
+Vertebrates	Trp	Met	Lys	Ter	Leu	Ter
+Arthropods	Trp	Met	Lys	Ser	Arg	Leu	Ter
+Echinoderms	Trp	Ile	Asn	Ser	Leu	Ter
+Molluscs	Trp	Met	Lys	Ser	Leu	Ter
+Ascidians	Trp	Met	Lys	Gly	Leu	Ter	Yokobori et al, J Mol Evol 36: 1-8 (1993)
+Nematodes	Trp	Met	???	Ser	???	???
+Platyhelminths	Trp	Ile	Asn	Ser	Leu	Tyr?
+Yeasts	Trp	Met	Lys	Arg	Thr	Ter
+Euascomycetes	Trp	Ile	Lys	Arg	Leu	Ter
+Protozoans	Trp	Ile	Lys	Arg	Leu	Ter
+ 
